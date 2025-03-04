@@ -28,7 +28,7 @@ func main() {
 	defer dbpool.Close()
 
 	// Set up the table
-	_, err = dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS mail_receipts (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, pixel_events TEXT[][] DEFAULT '{}')")
+	_, err = dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS mail_receipts (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, name TEXT NOT NULL , email TEXT DEFAULT NULL, created_by TEXT NOT NULL , created_at TEXT DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS'), pixel_events JSONB[] DEFAULT '{}')")
 	if err != nil {
 		log.Fatalf("Unable to setup table: %v\n", err)
 	}
@@ -52,7 +52,7 @@ func main() {
 	//app.Use(recover.New())
 
 	// Get tracking info
-	//app.Get("/track/:uuid", getInfo)
+	app.Get("/track/:id", getTrackerInfo)
 
 	// Serves a 1x1 transparent pixel and logs the request
 	app.Get("/track/:id/pixel", pixelTrack)

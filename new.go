@@ -6,15 +6,35 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-type NewResp struct {
-	Id        string `json:"id"`
-	CreatedAt string `json:"created_at"`
+type NewReq struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 func newTracker(c *fiber.Ctx) error {
-	var id string
-	var timestamp string
-	err := dbpool.QueryRow(context.Background(), "INSERT INTO mail_receipts DEFAULT VALUES RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US')").Scan(&id, &timestamp)
+	var reqBody NewReq
+
+	// Get name and optionally email from request body (JSON)
+	err := c.BodyParser(&reqBody)
+	if err != nil {
+		log.Errorf("Couldn't parse request body: %v", err)
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(ErrResp{
+			Code: fiber.StatusUnprocessableEntity,
+			Msg:  "Couldn't parse request body",
+		})
+	}
+
+	// Make sure name is not empty
+	if reqBody.Name == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrResp{
+			Code: fiber.StatusBadRequest,
+			Msg:  "Name is required",
+		})
+	}
+
+	// Add info to DB and complete creation of info object to return
+	info := TrackInfo{"", reqBody.Name, reqBody.Email, "", c.IP(), nil}
+	err = dbpool.QueryRow(context.Background(), "INSERT INTO mail_receipts (name, email, created_by) VALUES ($1, $2, $3) RETURNING id, created_at", info.Name, info.Email, info.CreatedBy).Scan(&info.Id, &info.CreatedAt)
 	if err != nil {
 		log.Errorf("Couldn't create tracking ID: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrResp{
@@ -23,9 +43,6 @@ func newTracker(c *fiber.Ctx) error {
 		})
 	}
 
-	c.Set(fiber.HeaderLocation, "/track/"+id)
-	return c.Status(201).JSON(NewResp{
-		Id:        id,
-		CreatedAt: timestamp,
-	})
+	c.Set(fiber.HeaderLocation, "/track/"+info.Id)
+	return c.Status(fiber.StatusCreated).JSON(info)
 }
