@@ -28,7 +28,7 @@ func main() {
 	defer dbpool.Close()
 
 	// Set up the table
-	_, err = dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS mail_receipts (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, name TEXT NOT NULL , email TEXT DEFAULT NULL, created_by TEXT NOT NULL , created_at TEXT DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS'), pixel_events JSONB[] DEFAULT '{}')")
+	_, err = dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS mail_receipts (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, name TEXT NOT NULL , email TEXT DEFAULT NULL, created_by TEXT NOT NULL , created_at TEXT DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS'), pixel_events JSONB[] DEFAULT '{}', url_events JSONB[] DEFAULT '{}')")
 	if err != nil {
 		log.Fatalf("Unable to setup table: %v\n", err)
 	}
@@ -58,13 +58,18 @@ func main() {
 	app.Get("/track/:id/pixel", pixelTrack)
 
 	// Redirects to url and logs the request
-	//app.Get("/track/:uuid/url/:url", urlTrack)
+	app.Get("/track/:id/url/:url", urlTrack)
 
 	// Creates a new row for tracking
 	app.Post("/track", newTracker)
 
 	// Deletes a row for tracking
 	app.Delete("/track/:id", deleteTracker)
+
+	// hehe
+	app.Get("/teapot", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusTeapot)
+	})
 
 	// Start the server on :3000
 	err = app.Listen(":3000")

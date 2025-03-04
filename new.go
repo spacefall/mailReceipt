@@ -45,7 +45,7 @@ func newTracker(c *fiber.Ctx) error {
 	}
 
 	// Add info to DB and complete creation of info object to return
-	info := TrackInfo{"", reqBody.Name, reqBody.Email, "", c.IP(), nil}
+	info := TrackInfo{"", reqBody.Name, reqBody.Email, "", c.IP(), nil, nil}
 	err = dbpool.QueryRow(context.Background(), "INSERT INTO mail_receipts (name, email, created_by) VALUES ($1, $2, $3) RETURNING id, created_at", info.Name, info.Email, info.CreatedBy).Scan(&info.Id, &info.CreatedAt)
 	if err != nil {
 		log.Errorf("Couldn't create tracking ID: %v", err)

@@ -1,10 +1,7 @@
 package main
 
 import (
-	"context"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -19,23 +16,7 @@ func pixelTrack(c *fiber.Ctx) error {
 	}
 
 	// Add request to db asynchronously
-	go func(id string, data TrackData) {
-		// Log info
-		// log.Printf("New Request\nID: %s\nIP: %s\n", id, ip)
-		// Check for valid UUID
-		if err := uuid.Validate(id); err != nil {
-			//log.Println("Invalid UUID: " + id)
-			log.Errorf("Couldn't update tracking table, as an invalid id (%s) was passed", id)
-			return
-		}
-
-		// Insert into DB
-		_, err := dbpool.Exec(context.Background(), `UPDATE mail_receipts SET pixel_events = array_append(pixel_events, $2) WHERE id = $1`, id, data)
-		if err != nil {
-			log.Errorf("Couldn't update tracking for id %s: %v", id, err)
-			return
-		}
-	}(c.Params("id"), trackingJson)
+	go dbAppend(c.Params("id"), "pixel_events", trackingJson)
 
 	// Disable caching
 	c.Set("Cache-Control", "max-age=0, no-cache, must-revalidate, proxy-revalidate")
