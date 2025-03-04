@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"net/mail"
 )
 
 type NewReq struct {
@@ -30,6 +31,17 @@ func newTracker(c *fiber.Ctx) error {
 			Code: fiber.StatusBadRequest,
 			Msg:  "Name is required",
 		})
+	}
+
+	// Make sure name is not empty
+	if reqBody.Email != "" {
+		_, err := mail.ParseAddress(reqBody.Email)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(ErrResp{
+				Code: fiber.StatusBadRequest,
+				Msg:  "Invalid email address",
+			})
+		}
 	}
 
 	// Add info to DB and complete creation of info object to return
