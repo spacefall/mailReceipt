@@ -58,7 +58,7 @@ func main() {
 	//app.Get("/track/:uuid", getInfo)
 
 	// Serves a 1x1 transparent pixel and logs the request
-	app.Get("/track/:uuid/pixel", pixelTrack)
+	app.Get("/track/:id/pixel", pixelTrack)
 
 	// Redirects to url and logs the request
 	//app.Get("/track/:uuid/url/:url", urlTrack)

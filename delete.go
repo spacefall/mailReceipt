@@ -8,7 +8,7 @@ import (
 )
 
 func deleteTracker(c *fiber.Ctx) error {
-	id := c.Params("uuid")
+	id := c.Params("id")
 
 	// Check if uuid is valid
 	if err := uuid.Validate(id); err != nil {

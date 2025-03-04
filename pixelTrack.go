@@ -18,7 +18,7 @@ func pixelTrack(c *fiber.Ctx) error {
 		// Check for valid UUID
 		if err := uuid.Validate(id); err != nil {
 			//log.Println("Invalid UUID: " + id)
-			log.Error("Couldn't update tracking table, as an invalid id was passed")
+			log.Errorf("Couldn't update tracking table, as an invalid id (%s) was passed", id)
 			return
 		}
 		// Insert into DB

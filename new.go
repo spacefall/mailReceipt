@@ -14,7 +14,7 @@ type NewResp struct {
 func newTracker(c *fiber.Ctx) error {
 	var id string
 	var timestamp string
-	err := dbpool.QueryRow(context.Background(), "INSERT INTO mail_receipts DEFAULT VALUES RETURNING id, created_at").Scan(&id, &timestamp)
+	err := dbpool.QueryRow(context.Background(), "INSERT INTO mail_receipts DEFAULT VALUES RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US')").Scan(&id, &timestamp)
 	if err != nil {
 		log.Errorf("Couldn't create tracking ID: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrResp{
