@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/wneessen/go-mail"
 	"log"
 	"os"
 	"strconv"
@@ -12,25 +13,33 @@ import (
 )
 
 var dbpool *pgxpool.Pool
+var mailClient *mail.Client
 
 func main() {
 	// Load .env file for convenience
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("error loading .env file")
 	}
 
 	// Connect to the database
 	dbpool, err = pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
+		log.Fatalf("unable to connect to database: %v\n", err)
 	}
 	defer dbpool.Close()
+
+	// Create a new mail client
+	mailClient, err = mail.NewClient(os.Getenv("EMAIL_HOST"), mail.WithTLSPortPolicy(mail.TLSMandatory), mail.WithSMTPAuth(mail.SMTPAuthPlain), mail.WithUsername(os.Getenv("EMAIL_USERNAME")), mail.WithPassword(os.Getenv("EMAIL_PASSWORD")))
+	if err != nil {
+		log.Fatalf("failed to create mail client: %s", err)
+	}
+	defer mailClient.Close()
 
 	// Set up the table
 	_, err = dbpool.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS mail_receipts (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, name TEXT NOT NULL , email TEXT DEFAULT NULL, created_by TEXT NOT NULL , created_at TEXT DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS'), pixel_events JSONB[] DEFAULT '{}', url_events JSONB[] DEFAULT '{}')")
 	if err != nil {
-		log.Fatalf("Unable to setup table: %v\n", err)
+		log.Fatalf("unable to setup table: %v\n", err)
 	}
 
 	// Create a new Fiber instance

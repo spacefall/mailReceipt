@@ -7,6 +7,7 @@ import (
 )
 
 func urlTrack(c *fiber.Ctx) error {
+	id := c.Params("id")
 	trackingJson := TrackData{
 		Ip:        c.IP(),
 		UserAgent: c.Get(fiber.HeaderUserAgent),
@@ -24,7 +25,9 @@ func urlTrack(c *fiber.Ctx) error {
 	trackingJson.Url = string(plainUrl)
 
 	// Add request to db asynchronously
-	go dbAppend(c.Params("id"), "url_events", trackingJson)
+	go dbAppend(id, "url_events", trackingJson)
+
+	go sendMail(trackingJson, id)
 
 	return c.Redirect(trackingJson.Url)
 }
