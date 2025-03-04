@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"log"
@@ -53,16 +52,22 @@ func main() {
 	})
 
 	// Recover from panics
-	app.Use(recover.New())
+	//app.Use(recover.New())
 
-	// Serves a 1x1 transparent pixel for tracking
-	app.Get("/pixel/:uuid?", pixelTrack)
+	// Get tracking info
+	//app.Get("/track/:uuid", getInfo)
+
+	// Serves a 1x1 transparent pixel and logs the request
+	app.Get("/track/:uuid/pixel", pixelTrack)
+
+	// Redirects to url and logs the request
+	//app.Get("/track/:uuid/url/:url", urlTrack)
 
 	// Creates a new row for tracking
-	app.Post("/new", newTracker)
+	app.Post("/track", newTracker)
 
 	// Deletes a row for tracking
-	app.Delete("/delete/:uuid?", removeTracking)
+	app.Delete("/track/:id", deleteTracker)
 
 	// Start the server on :3000
 	err = app.Listen(":3000")
