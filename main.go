@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -35,7 +36,12 @@ func main() {
 	}
 
 	// Create a new Fiber instance
-	app := fiber.New(fiber.Config{AppName: "mailReceipt"})
+	app := fiber.New(fiber.Config{
+		AppName:     "mailReceipt",
+		Prefork:     true,
+		JSONDecoder: sonic.Unmarshal,
+		JSONEncoder: sonic.Marshal,
+	})
 
 	// basic Server Timing API support, might put under a flag/remove
 	app.Use(func(c *fiber.Ctx) error {
