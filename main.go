@@ -55,6 +55,9 @@ func main() {
 	// Creates a new row for tracking
 	app.Post("/new", newTracker)
 
+	// Deletes a row for tracking
+	app.Delete("/delete/:uuid?", removeTracking)
+
 	// Start the server on :3000
 	err = app.Listen(":3000")
 	if err != nil {
