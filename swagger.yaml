@@ -127,7 +127,7 @@ paths:
   /track/{id}/pixel:
     get:
       summary: Track email open via pixel
-      description: Serves a 1x1 transparent pixel image (gif) and logs the request for email open tracking
+      description: Logs the email open event, returns a 1x1 transparent pixel gif and sends a notification email.
       tags:
         - tracking
       parameters:
@@ -150,7 +150,7 @@ paths:
   /track/{id}/url/{url}:
     get:
       summary: Track URL click and redirect
-      description: Redirects to the specified URL and logs the click event
+      description: Logs the URL click event, redirects to the target URL and sends a notification email.
       operationId: urlTrack
       tags:
         - tracking
@@ -167,6 +167,7 @@ paths:
           required: true
           schema:
             type: string
+            format: base64url
           description: Base64URL encoded URL to redirect to
       responses:
         '302':

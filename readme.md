@@ -1,5 +1,16 @@
 # mailReceipt
 A simple (in terms of codebase and usability) mail receipt api.
+It allows to create trackers to track email openings (with a 1x1 gif) and link openings (with a redirect), and sends an email notification when the event happens.
+The api also exposes a GET endpoint to get the info about a tracker, and a DELETE endpoint to delete it (permanently, as it deletes the row as soon as the request is made).
+
+You can find slightly more info on the endpoints [here](https://mailReceipt.5822.it).
+
+## Requirements
+The api is quite light, so it should run even on a RPI 0, it does however require a few things which might not be available on all systems:
+- A postgres database to store trackers and events.
+- An email account to send the receipts.
+
+You can however use a free db host like Neon or CockroachDB and a free email service like Gmail, so it shouldn't be a problem.
 
 ## Usage
 The api is easy to set up and use:
@@ -28,9 +39,9 @@ The api has the following endpoints:
   - GET: Gets info about a tracking entry.
   - DELETE: Deletes a tracking entry.
 - '/track/{id}/pixel'
-  - GET: Returns a 1x1 pixel image that will be used to track when the email is opened.
+  - GET: Returns a 1x1 pixel image that will be used to track when the email is opened, also sends an email notification.
 - '/track/{id}/url/{url}'
-  - GET: Redirects to the url provided and records that the link has been opened.
+  - GET: Redirects to the url provided and records that the link has been opened, also sends an email notification.
 
 A full list and description of the endpoints can be found in the swagger file or [here](https://mailReceipt.5822.it).
 
