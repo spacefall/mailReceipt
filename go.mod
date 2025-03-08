@@ -1,6 +1,6 @@
 module mailReceipt
 
-go 1.24
+go 1.24.1
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.6

@@ -30,7 +30,7 @@ func main() {
 	defer dbpool.Close()
 
 	// Create a new mail client
-	mailClient, err = mail.NewClient(os.Getenv("EMAIL_HOST"), mail.WithTLSPortPolicy(mail.TLSMandatory), mail.WithSMTPAuth(mail.SMTPAuthPlain), mail.WithUsername(os.Getenv("EMAIL_USERNAME")), mail.WithPassword(os.Getenv("EMAIL_PASSWORD")))
+	mailClient, err = mail.NewClient(os.Getenv("EMAIL_HOST"), mail.WithSSLPort(false), mail.WithSMTPAuth(mail.SMTPAuthPlain), mail.WithUsername(os.Getenv("EMAIL_USERNAME")), mail.WithPassword(os.Getenv("EMAIL_PASSWORD")))
 	if err != nil {
 		log.Fatalf("failed to create mail client: %s", err)
 	}

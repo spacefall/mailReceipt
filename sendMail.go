@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/wneessen/go-mail"
+	"os"
 )
 
 func sendMail(info TrackData, id string) {
@@ -19,7 +20,7 @@ func sendMail(info TrackData, id string) {
 	}
 
 	message := mail.NewMsg()
-	if err := message.From("mailreceiptbot@gmail.com"); err != nil {
+	if err := message.From(os.Getenv("EMAIL_USERNAME")); err != nil {
 		log.Errorf("failed to set From address: %s", err)
 		return
 	}
