@@ -8,8 +8,15 @@ import (
 
 func urlTrack(c *fiber.Ctx) error {
 	id := c.Params("id")
+
+	// Get IP (supporting cf proxy too)
+	ip := c.Get("cf-connecting-ip")
+	if ip == "" {
+		ip = c.IP()
+	}
+
 	trackingJson := TrackData{
-		Ip:        c.IP(),
+		Ip:        ip,
 		UserAgent: c.Get(fiber.HeaderUserAgent),
 		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
 	}
