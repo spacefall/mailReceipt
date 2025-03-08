@@ -8,8 +8,8 @@ import (
 )
 
 func sendMail(info TrackData, id string) {
-	var recipient string
-	err := dbpool.QueryRow(context.Background(), "SELECT email FROM mail_receipts WHERE id = $1", id).Scan(&recipient)
+	var recipient, name string
+	err := dbpool.QueryRow(context.Background(), "SELECT email, name FROM mail_receipts WHERE id = $1", id).Scan(&recipient, &name)
 	if err != nil {
 		log.Errorf("failed to get email for id %s: %v", id, err)
 		return
@@ -32,12 +32,18 @@ func sendMail(info TrackData, id string) {
 
 	if info.Url != "" {
 		message.Subject("Somebody clicked your link!")
-		message.SetBodyString(mail.TypeTextPlain, "Hi 👋,\nSomeone ("+info.Ip+") clicked your link at "+info.Timestamp+"!\nTheir device identified as: "+
-			info.UserAgent+" and they were brought to: "+info.Url+".\n\nHave a great day!")
+		message.SetBodyString(mail.TypeTextPlain,
+			"Hi 👋,\n\nSomeone ("+info.Ip+") was brought to \""+info.Url+"\" after clicking the link in the email you call \""+name+
+				"\"\nThis happened at: "+info.Timestamp+
+				"\n\nTheir browser identified as: \""+info.UserAgent+
+				"\"\n\nHave a great day,\nmailReceipt")
 	} else {
 		message.Subject("Somebody opened your mail!")
-		message.SetBodyString(mail.TypeTextPlain, "Hi 👋,\nSomeone ("+info.Ip+") opened your email at "+info.Timestamp+"!\nTheir device identified as: "+
-			info.UserAgent+".\n\nHave a great day!")
+		message.SetBodyString(mail.TypeTextPlain,
+			"Hi 👋,\n\nSomeone ("+info.Ip+") opened the email you call \""+name+
+				"\"\nThis happened at: "+info.Timestamp+
+				"\n\nTheir browser identified as: \""+info.UserAgent+
+				"\"\n\nHave a great day,\nmailReceipt")
 	}
 
 	if err := mailClient.DialAndSend(message); err != nil {
